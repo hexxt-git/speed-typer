@@ -1,0 +1,30 @@
+*{
+    box-sizing:border-box;
+}
+body{
+    background-color: black;
+    color: white;
+    font-family: monospace;
+    font-size: 18px;
+}
+#text-container{
+    width: 100%;
+    padding: 50px;
+    overflow: hidden;
+}
+.cursor{
+    display: inline;
+}
+.cursor::before{
+    content: "|";
+    animation: blink 1200ms step-end infinite;
+    -webkit-animation: blink 1200ms step-end infinite;
+}
+@keyframes blink {
+    0%{
+        opacity: 1;
+    }
+    50%{
+        opacity: 0;
+    }
+}
