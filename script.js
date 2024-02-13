@@ -2,6 +2,7 @@ const settings = {
     sentence_length: 20,
     skip_mistakes: false,
     punctuation: 0,
+    capitalization: 0,
 }
 const letter_occurence_variable = { // 0: the letter wont show in any word, 1: no effect on occurrence, 2: letter must occur in every word // anything in between is based on chance
     a: 1,
@@ -81,6 +82,9 @@ function random_sentence(){
     while(new_sentence.length < settings.sentence_length && safety_counter < 10000){
         let new_word = word_set[word_distribution() % word_set.length]
         let accepted = true
+        if(Math.random() < settings.capitalization){
+            new_word = new_word[0].toUpperCase() + new_word.slice(1)
+        }
         for(let letter of Object.keys(letter_occurence_variable)){
             if(letter_occurence_variable[letter] < 1 && new_word.includes(letter)){
                 if(Math.random() > letter_occurence_variable[letter]) accepted = false
@@ -104,22 +108,26 @@ function random_sentence(){
 }
 
 let current_sentence = new sentence(random_sentence());
+function reset(){
+    let text = current_sentence.target_text
+    let time_ms = Date.now() - current_sentence.start_time
+    let time_m = time_ms / 1000 / 60
+    let letters_written = current_sentence.writing_index
+    let words_written = letters_written / 5
+    let wpm = words_written / time_m
+    let acc = (letters_written - current_sentence.error_indexes.length) / letters_written * 100
+    if(letters_written == 0) acc = 0
+    console.table({text, time_ms, time_m, letters_written, words_written, wpm, acc})
+    document.getElementById('wpm-val').innerText = Math.floor(wpm*10)/10+'wpm'
+    document.getElementById('acc-val').innerText = Math.floor(acc)+'%'
+    document.getElementById('time-val').innerText = Math.floor(time_ms/10)/100+'s'
+    current_sentence = new sentence(random_sentence())
+}
 
 document.addEventListener('keydown', (event)=>{
+    if(event.code === 'KeyR' && event.shiftKey) reset()
     let response = current_sentence.key_press(event.key)
-    if(response === 1){
-        let text = current_sentence.target_text
-        let time_ms = Date.now() - current_sentence.start_time
-        let time_m = time_ms / 1000 / 60
-        let n_words = text.length / 5
-        let wpm = n_words / time_m
-        let acc = (text.length - current_sentence.error_indexes.length) / text.length * 100
-        console.table({text, time_ms, time_m, n_words, wpm, acc})
-        document.getElementById('wpm-val').innerText = Math.floor(wpm*10)/10+'wpm'
-        document.getElementById('acc-val').innerText = Math.floor(acc)+'%'
-        document.getElementById('time-val').innerText = Math.floor(time_ms/10)/100+'s'
-        current_sentence = new sentence(random_sentence())
-    }
+    if(response === 1) reset()
 })
 
 let format_time = time => { // time in ms
@@ -139,4 +147,8 @@ setInterval(()=>{
 console.log('~~~~~~~~~~~~~~')
 console.log('change the settings variable for more options')
 console.table(settings)
+console.log('Shift+R to reset')
+console.log('theres also a way to artifically boost the occurance of letters using letter_occurence_variable')
+console.log(letter_occurence_variable)
+console.log(`0: the letter wont show in any word, 1: no effect on occurrence, 2: letter must occur in every word // anything in between is based on chance`)
 console.log('~~~~~~~~~~~~~~')
