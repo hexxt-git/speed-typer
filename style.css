@@ -7,16 +7,35 @@ body{
     font-family: monospace;
     font-size: 18px;
 }
+#stats{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 30px;
+}
+#stats div span{
+    color: greenyellow;
+}
 #text-container{
-    width: 100%;
-    padding: 50px;
-    overflow: hidden;
+    padding: 10px 150px;
+}
+#timer{
+    position: fixed;
+    padding: 5px;
+    bottom: 0px;
+    left: 0px;
+}
+.active{
+    color: white;
+}
+.inactive{
+    color: gray;
+}
+.error{
+    color: rgb(192, 50, 81);
 }
 .cursor{
-    display: inline;
-}
-.cursor::before{
-    content: "|";
+    border-right: solid white 2px;
     animation: blink 1200ms step-end infinite;
     -webkit-animation: blink 1200ms step-end infinite;
 }
