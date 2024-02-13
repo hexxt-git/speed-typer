@@ -1,3 +1,41 @@
+const settings = {
+    sentence_length: 20,
+    skip_mistakes: false,
+    punctuation: 0,
+}
+const letter_occurence_variable = { // 0: the letter wont show in any word, 1: no effect on occurrence, 2: letter must occur in every word // anything in between is based on chance
+    a: 1,
+}
+const word_end_punctuation = [
+    `,`,
+    `,`,
+    `,`,
+    `.`,
+    `.`,
+    `.`,
+    `?`,
+    `!`,
+    `:`,
+    `;`,
+    `*`,
+    `+`,
+    `-`,
+    `=`,
+    `$`,
+    `%`,
+    `/`,
+    `\\`,
+]
+const surrounding_punctuation = [
+    `()`,
+    `{}`,
+    `[]`,
+    `<>`,
+    `""`,
+    `''`,
+    '``'
+]
+
 
 class sentence{
     constructor(target_text){
@@ -9,12 +47,16 @@ class sentence{
         this.update_container()
     }
     key_press(key){
+        if(key == 'Shift') return 0
         if(this.target_text[this.writing_index] === key && this.writing_index == 0){
             this.start_time = Date.now()
             this.started = true
         }
         if(this.target_text[this.writing_index] === key) this.writing_index++
-        else if(!this.error_indexes.includes[this.writing_index]) this.error_indexes.push(this.writing_index)
+        else if(!this.error_indexes.includes[this.writing_index]){
+            this.error_indexes.push(this.writing_index)
+            if(settings.skip_mistakes) this.writing_index++
+        }
         this.update_container()
         if(this.writing_index === this.target_text.length) return 1
         return 0
@@ -31,11 +73,34 @@ class sentence{
 }
 
 function word_distribution(){
-    let variation = 10
-    return Math.floor(Math.exp(-(Math.random()**2)*variation)*1000)
+    return Math.floor(Math.exp(-(Math.random()**2)*10)*5000) 
 }
-function random_sentence(){ // temp
-    return new Array(10).fill(0).map(e=>word_set[word_distribution()]).join(' ')
+function random_sentence(){
+    let new_sentence = []
+    let safety_counter = 0
+    while(new_sentence.length < settings.sentence_length && safety_counter < 10000){
+        let new_word = word_set[word_distribution() % word_set.length]
+        let accepted = true
+        for(let letter of Object.keys(letter_occurence_variable)){
+            if(letter_occurence_variable[letter] < 1 && new_word.includes(letter)){
+                if(Math.random() > letter_occurence_variable[letter]) accepted = false
+            }
+            if(letter_occurence_variable[letter] > 1 && !new_word.includes(letter)){
+                if(Math.random() < letter_occurence_variable[letter]-1) accepted = false
+            }
+        }
+        if(Math.random() < settings.punctuation){
+            if(Math.random()<2/3){
+                new_word += word_end_punctuation[Math.floor(Math.random()*word_end_punctuation.length)]
+            } else {
+                let i = Math.floor(Math.random()*surrounding_punctuation.length)
+                new_word = surrounding_punctuation[i][0] + new_word + surrounding_punctuation[i][1]
+            }
+        }
+        if(accepted) new_sentence.push(new_word)
+        safety_counter++
+    }
+    return new_sentence.join(' ')
 }
 
 let current_sentence = new sentence(random_sentence());
@@ -70,3 +135,8 @@ setInterval(()=>{
     if(current_sentence.started) document.getElementById('timer').innerHTML = format_time(Date.now() - current_sentence.start_time)
     else document.getElementById('timer').innerHTML = format_time(0)
 },60)
+
+console.log('~~~~~~~~~~~~~~')
+console.log('change the settings variable for more options')
+console.table(settings)
+console.log('~~~~~~~~~~~~~~')
