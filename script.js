@@ -10,6 +10,15 @@ const letter_occurence_variable = { // 0: the letter wont show in any word, 1: n
 const word_end_punctuation = [`,`, `,`, `,`, `.`, `.`, `.`, `?`, `!`, `:`, `;`, `*`, `+`, `-`, `=`, `$`, `%`, `/`, `\\`]
 const surrounding_punctuation = [`()`, `{}`, `[]`, `<>`, `""`, `''`, '``']
 
+let mix_colors = (color1, color2, ratio) => {
+    ratio = Math.min(1, Math.max(0, ratio))
+    let mixed_color = []
+    for(let i = 0 ; i < 3 ; i++){
+        mixed_color.push(color1[i] * (1-ratio) + color2[i] * ratio)
+    }
+    return `rgb(${Math.floor(mixed_color[0])},${Math.floor(mixed_color[1])},${Math.floor(mixed_color[2])})`
+}
+
 class sentence{
     constructor(target_text){
         this.target_text = String(target_text)
@@ -89,7 +98,11 @@ function random_sentence(){
 }
 
 let current_sentence = new sentence(random_sentence());
-function reset(){
+function reset(discard = false){
+    if(discard){
+        current_sentence = new sentence(random_sentence())
+        return 0
+    }
     let text = current_sentence.target_text
     let time_ms = Date.now() - current_sentence.start_time
     let time_m = time_ms / 1000 / 60
@@ -100,12 +113,19 @@ function reset(){
     if(letters_written == 0) acc = 0
     console.table({text, time_ms, time_m, letters_written, words_written, wpm, acc})
     document.getElementById('wpm-val').innerText = Math.floor(wpm*10)/10+'wpm'
+    document.getElementById('wpm-val').style.color = mix_colors([255,0,0],[0,255,0],wpm/100)
     document.getElementById('acc-val').innerText = Math.floor(acc)+'%'
+    document.getElementById('acc-val').style.color = mix_colors([255,0,0],[0,255,0],acc/100)
     document.getElementById('time-val').innerText = Math.floor(time_ms/10)/100+'s'
+    document.getElementById('time-val').style.color = mix_colors([255,0,0],[0,255,0],wpm/100*acc/100)
     current_sentence = new sentence(random_sentence())
 }
 
 document.addEventListener('keydown', (event)=>{
+    if(event.key == 'Tab'){
+        event.preventDefault()
+        reset(1)
+    }
     let response = current_sentence.key_press(event.key)
     if(response === 1) reset()
 })
@@ -127,7 +147,7 @@ setInterval(()=>{
 console.log('~~~~~~~~~~~~~~')
 console.log('change the `settings` variable for more options')
 console.table(settings)
-console.log('Ctrl+R to reset (will also reset the settings)')
+console.log('Tab to reset')
 console.log('theres also a way to artifically boost the occurance of letters using letter_occurence_variable')
 console.log(letter_occurence_variable)
 console.log(`0: the letter wont show in any word, 1: no effect on occurrence, 2: letter must occur in every word // anything in between is based on chance`)

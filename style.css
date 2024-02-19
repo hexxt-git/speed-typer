@@ -13,9 +13,6 @@ body{
     align-items: center;
     padding: 30px;
 }
-#stats div span{
-    color: greenyellow;
-}
 #text-container{
     padding: 10px 150px;
 }
