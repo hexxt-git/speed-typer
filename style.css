@@ -25,6 +25,12 @@ body{
     bottom: 0px;
     left: 0px;
 }
+#info{
+    position: fixed;
+    padding: 5px;
+    bottom: 0px;
+    right: 0px;
+}
 .active{
     color: white;
 }
