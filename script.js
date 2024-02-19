@@ -22,6 +22,14 @@ class sentence{
     key_press(key){
         if(key === 'Shift') return 0
         if(key === 'Control') return 0
+        if(key === 'Alt') return 0
+        if(key === 'Backspace'){
+            if(this.error_indexes.includes(this.writing_index)) this.error_indexes.pop()
+            else if(this.writing_index > 0) this.writing_index--
+            if(this.error_indexes.includes(this.writing_index)) this.error_indexes.pop()
+            this.update_container()
+            return 0
+        }
         if(this.target_text[this.writing_index] === key && this.writing_index == 0){
             this.start_time = Date.now()
             this.started = true
@@ -98,7 +106,6 @@ function reset(){
 }
 
 document.addEventListener('keydown', (event)=>{
-    //if(event.code === 'KeyR' && event.shiftKey) reset()
     let response = current_sentence.key_press(event.key)
     if(response === 1) reset()
 })
@@ -118,9 +125,9 @@ setInterval(()=>{
 },60)
 
 console.log('~~~~~~~~~~~~~~')
-console.log('change the settings variable for more options')
+console.log('change the `settings` variable for more options')
 console.table(settings)
-console.log('Ctrl+R to reset')
+console.log('Ctrl+R to reset (will also reset the settings)')
 console.log('theres also a way to artifically boost the occurance of letters using letter_occurence_variable')
 console.log(letter_occurence_variable)
 console.log(`0: the letter wont show in any word, 1: no effect on occurrence, 2: letter must occur in every word // anything in between is based on chance`)
