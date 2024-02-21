@@ -3,6 +3,7 @@ const settings = {
     skip_mistakes: false,
     punctuation: 0,
     capitalization: 0,
+    error_sound: true,
 }
 const letter_occurence_variable = { // 0: the letter wont show in any word, 1: no effect on occurrence, 2: letter must occur in every word // anything in between is based on chance
     a: 1,
@@ -47,6 +48,9 @@ class sentence{
         else if(!this.error_indexes.includes[this.writing_index]){
             this.error_indexes.push(this.writing_index)
             if(settings.skip_mistakes) this.writing_index++
+            let audio = new Audio('error.wav')
+            audio.volume = 0.3
+            if(settings.error_sound) audio.play()
         }
         this.update_container()
         if(this.writing_index === this.target_text.length) return 1
